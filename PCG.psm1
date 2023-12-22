@@ -12,7 +12,8 @@ class PCG {
     hidden [pscredential]$AppCredential
     hidden [string]$PartnerAccessToken
     hidden $PartnerCenter
-    hidden $Customers
+    hidden $CustomerIDs
+    hidden $secret
 
     
     PCG ([string]$KvName, [string]$KvCName, [string]$KVSPApplicationId, [string]$TenantId, [string]$AppDisplayName) {
@@ -377,14 +378,31 @@ String. The RevokeAppAccess function returns a message indicating the success or
         return $response
     }
 
-    [Object[]] AllCustomers() {
-        if($null -ne $this.Customers) {
-           return $this.Customers 
+    [String[]] GetAllCustomerIds() {
+        if ($null -ne $this.CustomerIDs) {
+            return $this.CustomerIDs 
         }
-        $this.Customers = Get-PartnerCustomer
-        return $this.Customers
-    }
 
+        # Start a background job to run the script block
+        $pcjob = Start-Job -ScriptBlock {
+            param($PartnerAccessToken)
+
+            Connect-PartnerCenter -AccessToken $PartnerAccessToken | Out-Null
+        
+            $Customers = (Get-PartnerCustomer).CustomerId
+
+            Disconnect-PartnerCenter | Out-Null
+        
+            # Return the secret to the local session
+            Return $Customers
+        
+        } -ArgumentList $this.GetPartnerAccessToken()
+        
+        # Wait for the job to finish and get the output
+        $this.CustomerIDs = Wait-Job -Job $pcjob | Receive-Job 
+
+        return $this.CustomerIDs
+    }
 }
 
 
