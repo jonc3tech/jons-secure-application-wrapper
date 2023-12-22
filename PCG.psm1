@@ -345,11 +345,36 @@ String. The RevokeAppAccess function returns a message indicating the success or
     }
 
 
+    <#
+    @(
+                    @{
+                        enterpriseApplicationId = "00000003-0000-0000-c000-000000000000"
+                        scope                   = "Directory.Read.All,Directory.AccessAsUser.All"
+                    },
+                    @{
+                        enterpriseApplicationId = "00000002-0000-0ff1-ce00-000000000000"
+                        scope                   = "Exchange.Manage"
+                    }
+                )
+    #>
     [Object] ConsentToApp ([string]$CustomerTenantId, $grants) {
-        return New-PartnerCustomerApplicationConsent -ApplicationGrants $grants `
-            -CustomerId $CustomerTenantId `
-            -ApplicationId $this.AutomationAppId `
-            -DisplayName $this.AppDisplayName
+        $headers = @{
+            Authorization = "Bearer $($this.GetPartnerAccessToken())"
+            'Accept'      = 'application/json'
+        }
+
+        # Consent to required applications
+        $uri = "https://api.partnercenter.microsoft.com/v1/customers/$CustomerTenantId/applicationconsents"
+        $body = @{
+            applicationGrants = $grants
+            applicationId     = $this.AutomationAppId
+            displayName       = $this.AppDisplayName
+        } | ConvertTo-Json
+
+        $response =  Invoke-RestMethod -Uri $uri -Headers $headers -Method POST -Body $body -ContentType 'application/json' -
+        $this.secret = $response
+
+        return $response
     }
 
     [Object[]] AllCustomers() {
