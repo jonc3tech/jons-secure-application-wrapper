@@ -35,16 +35,16 @@ Once you have all of that you are 90% there to using this bad boy.
 Clone the repo to your directory of choosing. Now we code:
 
 ## Bring in the class with a using
-    ```
-    PS C:\Users\jon> using module 'repopath\jons-secure-graph-wrapper\PCG.psm1'   
-    ```
-## Initialize your PCG (Partner Center Graph) object with your identifying information
-    ```
-    $pcg = [PCG]::new()
+```
+    PS C:\Users\jon> using module 'repopath\jons-secure-graph-wrapper\SGW.psm1'   
+```
+## Initialize your SGW (Partner Center Graph) object with your identifying information
+```
+    $SGW = [SGW]::new()
 
-    #alternatively  PCG ([string]$KvName, [string]$KvCName, [string]$KVSPApplicationId, [string]$TenantId, [string]$AppDisplayName)
-    $pcg = [PCG]::new('MSP-CredsKeyVault','CN=MSPKV','12345678-1234-1234-1234-123456789012','87654321-4321-4321-4321-210987654321',' MSP Automations')
-    ```
+    #alternatively  SGW ([string]$KvName, [string]$KvCName, [string]$KVSPApplicationId, [string]$TenantId, [string]$AppDisplayName)
+    $SGW = [SGW]::new('MSP-CredsKeyVault','CN=MSPKV','12345678-1234-1234-1234-123456789012','87654321-4321-4321-4321-210987654321',' MSP Automations')
+```
 
 ## Consent to your application for a sub-tenant
 ```
@@ -59,18 +59,18 @@ Clone the repo to your directory of choosing. Now we code:
             }
         )
 
-    $pcg.ConsentToApp($CustomerTenantId, $grants)
+    $SGW.ConsentToApp($CustomerTenantId, $grants)
 ```
 
 ## Revoke consent to your app for a sub-tenant
 ```
-    $pcg.RevokeAppAccess($CustomerTenantId)
+    $SGW.RevokeAppAccess($CustomerTenantId)
 ```
 
 ## Generate a token and make an API call
 ```
     $scope = 'https://graph.microsoft.com/Device.ReadWrite.All'
-    $graphToken = $pcg.GetMicrosoftToken($CustomerTenantId,$scope)
+    $graphToken = $SGW.GetMicrosoftToken($CustomerTenantId,$scope)
 
 
     $headers = @{ "Authorization" = "Bearer $($graphToken.Access_Token)" }
@@ -81,7 +81,7 @@ Clone the repo to your directory of choosing. Now we code:
 
 ## Connect to Exchange Online
 ```
-    $token = $pcg.GetMicrosoftToken($CustomerTenantId, 'https://outlook.office365.com/.default')
+    $token = $SGW.GetMicrosoftToken($CustomerTenantId, 'https://outlook.office365.com/.default')
     Connect-ExchangeOnline -DelegatedOrganization $CustomerTenantId -AccessToken $token.Access_Token -ShowBanner:$false
 ```
 

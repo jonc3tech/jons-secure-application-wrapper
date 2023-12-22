@@ -1,5 +1,5 @@
 
-class PCG {
+class SGW {
     [string]$KvName #Azure Key Vault Name
     [string]$KvCName # CName that identifies certificate used to sign into key vault service principle
     [string]$KVSPApplicationId # Service Principle application id that has proper permissions to KV
@@ -15,7 +15,7 @@ class PCG {
     hidden $CustomerIDs
     hidden $secret #this isn't actually secret and I just use for debugging XD
     
-    PCG ([string]$KvName, [string]$KvCName, [string]$KVSPApplicationId, [string]$TenantId, [string]$AppDisplayName) {
+    SGW ([string]$KvName, [string]$KvCName, [string]$KVSPApplicationId, [string]$TenantId, [string]$AppDisplayName) {
         $this.KvName = $KvName
         $this.KvCName = $KvCName
         $this.KVSPApplicationId = $KVSPApplicationId
@@ -25,7 +25,7 @@ class PCG {
         $this.initialize()
     }
 
-    PCG () {
+    SGW () {
         $this.KvName = Read-Host "Enter the key vault name(KvName)"
         $this.KvCName = Read-Host "Enter the key vault certificate name(KvCName)"
         $this.KVSPApplicationId = Read-Host "Enter the key vault service principal application ID(KVSPApplicationId)"
