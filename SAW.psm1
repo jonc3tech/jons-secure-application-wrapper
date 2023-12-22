@@ -278,9 +278,6 @@ class SAW {
     This example gets a partner access token for the current class instance and assigns it to the $token variable.
     #>
     [string] GetPartnerAccessToken  () {
-        if ($null -ne $this.PartnerAccessToken -and ($this.PartnerAccessToken.length -gt 1)) {
-            return $this.PartnerAccessToken
-        }
     
         Write-Host "Generating New Access Token"
         try {
