@@ -3,7 +3,7 @@
 ![Issues](https://img.shields.io/github/issues/jonc3tech/jons-secure-graph-wrapper)
 
 
-### Description
+## Description
 Are you an MSP with GDAP partners? Do you want to leverage powershell automations through MSGraph, Exchange Online, or other Enterprise Applications? Are you tired of manually pulling the credentials for that tenant and entering an MFA code? Do you have concerns about the security of programmatic access to your sub-tenants?
 
 Well look no further!
@@ -13,12 +13,12 @@ This is a module/class meant to ease the process of interacting with these appli
 I rely heavily upon a blog [here](https://tminus365.com/my-automations-break-with-gdap-the-fix/) for instructions on how to setup the app registration
 And [here](https://www.gavsto.com/msp-powershell-for-beginners-part-2-securely-store-credentials-passwords-api-keys-and-secrets/) for instructions on how to setup the azure key vault
 
-### Instructions
+## Instructions
 Powershell 7 of course 
 
 You will  need a certificate in the cert:\currentuser\my\ store on the device that you want to securely access the keyvault from. If you are unfamiliar please follow along [here](https://www.gavsto.com/msp-powershell-for-beginners-part-2-securely-store-credentials-passwords-api-keys-and-secrets/) to create the certification and keyvault. I have 2 notes on the this tutorial.. I would recommend creating the certificate as non-exportable to prevent propogation or security issues if it is leaked, there is also a few typos for .ApplicationId that should be .AppId.
 
-This module assumes you already have your azure key vault setup with these keys:
+This module assumes you already have your azure key vault setup with these keys:                                                        
     "PartnerCenterRefreshToken"  
     "AutomationsAppID" 
     "AutomationsAppSecret" 
