@@ -48,34 +48,34 @@ Clone the repo to your directory of choosing. Now we code:
 
 ## Consent to your application for a sub-tenant
 ```
-$grants =  @(
-        @{
-            enterpriseApplicationId = "00000003-0000-0000-c000-000000000000"
-            scope                   = "Directory.Read.All,Directory.AccessAsUser.All"
-        },
-        @{
-            enterpriseApplicationId = "00000002-0000-0ff1-ce00-000000000000"
-            scope                   = "Exchange.Manage"
-        }
-    )
+    $grants =  @(
+            @{
+                enterpriseApplicationId = "00000003-0000-0000-c000-000000000000"
+                scope                   = "Directory.Read.All,Directory.AccessAsUser.All"
+            },
+            @{
+                enterpriseApplicationId = "00000002-0000-0ff1-ce00-000000000000"
+                scope                   = "Exchange.Manage"
+            }
+        )
 
-$pcg.ConsentToApp($CustomerTenantId, $grants)
+    $pcg.ConsentToApp($CustomerTenantId, $grants)
 ```
 
 ## Revoke consent to your app for a sub-tenant
 ```
-$pcg.RevokeAppAccess($CustomerTenantId)
+    $pcg.RevokeAppAccess($CustomerTenantId)
 ```
 
 ## Generate a token and make an API call
 ```
-$scope = 'https://graph.microsoft.com/Device.ReadWrite.All'
-$graphToken = $pcg.GetMicrosoftToken($CustomerTenantId,$scope)
+    $scope = 'https://graph.microsoft.com/Device.ReadWrite.All'
+    $graphToken = $pcg.GetMicrosoftToken($CustomerTenantId,$scope)
 
 
-$headers = @{ "Authorization" = "Bearer $($graphToken.Access_Token)" }
-$Devices = (Invoke-RestMethod -Uri 'https://graph.microsoft.com/beta/devices' -Headers $headers -Method Get -ContentType "application/json").value
-$Devices.count
+    $headers = @{ "Authorization" = "Bearer $($graphToken.Access_Token)" }
+    $Devices = (Invoke-RestMethod -Uri 'https://graph.microsoft.com/beta/devices' -Headers $headers -Method Get -ContentType "application/json").value
+    $Devices.count
 ```
 
 
