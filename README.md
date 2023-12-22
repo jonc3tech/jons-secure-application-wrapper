@@ -8,7 +8,7 @@ Are you an MSP with GDAP partners? Do you want to leverage powershell automation
 
 Well look no further!
 
-This is a module/class meant to ease the process of interacting with these applications. This leverages GDAP partner relationships as well as azure key vaults to securely store information.  
+This is a module/class meant to ease the process of interacting with these applications by streamlining access token creation. This leverages GDAP partner relationships as well as azure key vaults to securely store information.  
 
 I rely heavily upon a blog [here](https://tminus365.com/my-automations-break-with-gdap-the-fix/) for instructions on how to setup the app registration
 And [here](https://www.gavsto.com/msp-powershell-for-beginners-part-2-securely-store-credentials-passwords-api-keys-and-secrets/) for instructions on how to setup the azure key vault
