@@ -14,7 +14,6 @@ class PCG {
     hidden $PartnerCenter
     hidden $CustomerIDs
     hidden $secret
-
     
     PCG ([string]$KvName, [string]$KvCName, [string]$KVSPApplicationId, [string]$TenantId, [string]$AppDisplayName) {
         $this.KvName = $KvName
@@ -36,6 +35,7 @@ class PCG {
         $this.initialize()
     }
 
+    # This function initializes some variables and credentials for the current object pulling from they keyvault 
     hidden initialize() {
         #| ~ ! @ # $ % ^ & * ( ) + [ { ] } | \ ’ < , . > ? / ` " " ; :
         #will match any of these special characters
@@ -65,6 +65,7 @@ class PCG {
         $this.AppDisplayName = $this.AppDisplayName.Trim()
 
 
+        #this makes requests to the keyvault for identifying information that will allow us to generate access tokens for the application
         $this.PCRefreshToken = $this.GetKVSecret("PartnerCenterRefreshToken" )
         $this.AutomationAppId = $this.GetKVSecret("AutomationsAppID") 
         $this.AutomationAppSecret = $this.GetKVSecret("AutomationsAppSecret") 
@@ -75,37 +76,36 @@ class PCG {
             Throw "Failed to create AppCredential: $AppCredentialError"
             return
         }
-
     }
 
     <#
-.SYNOPSIS
-Gets a secret from an Azure Key Vault using a background job and a service principal.
+    .SYNOPSIS
+    Gets a secret from an Azure Key Vault using a background job and a service principal.
 
-.DESCRIPTION
-This function uses the Azure PowerShell module to get a secret from an Azure Key Vault using a background job and a service principal. It requires the certificate thumbprint, the application ID, and the tenant ID of the service principal, as well as the key vault name and the secret name. It returns the secret as plain text.
+    .DESCRIPTION
+    This function uses the Azure PowerShell module to get a secret from an Azure Key Vault using a background job and a service principal. It requires the certificate thumbprint, the application ID, and the tenant ID of the service principal, as well as the key vault name and the secret name. It returns the secret as plain text.
 
-.PARAMETER kvname
-The name of the Azure Key Vault.
+    .PARAMETER kvname
+    The name of the Azure Key Vault.
 
-.PARAMETER kvcname
-The name of the certificate used by the service principal.
+    .PARAMETER kvcname
+    The name of the certificate used by the service principal.
 
-.PARAMETER secretname
-The name of the secret to get from the Azure Key Vault.
+    .PARAMETER secretname
+    The name of the secret to get from the Azure Key Vault.
 
-.PARAMETER KVSPApplicationId
-The application ID of the service principal.
+    .PARAMETER KVSPApplicationId
+    The application ID of the service principal.
 
-.PARAMETER TenantId
-The tenant ID of the service principal.
+    .PARAMETER TenantId
+    The tenant ID of the service principal.
 
-.INPUTS
-None. You cannot pipe objects to GetKVSecret.
+    .INPUTS
+    None. You cannot pipe objects to GetKVSecret.
 
-.OUTPUTS
-String. The GetKVSecret function returns the secret as plain text.
-#>
+    .OUTPUTS
+    String. The GetKVSecret function returns the secret as plain text.
+    #>
     [string] GetKVSecret ( [string]$secretname) {
 
         # Start a background job to run the script block
@@ -134,7 +134,7 @@ String. The GetKVSecret function returns the secret as plain text.
         } -ArgumentList $this.kvname, $this.kvcname, $secretname, $this.KVSPApplicationId, $this.TenantId 
 
         # Wait for the job to finish and get the output
-         $response = Wait-Job -Job $secretjob | Receive-Job 
+        $response = Wait-Job -Job $secretjob | Receive-Job 
 
         # Return the secret from the job's return value
         return $response
@@ -182,6 +182,7 @@ String. The GetKVSecret function returns the secret as plain text.
         $secretjob = Start-Job -ScriptBlock {
             param($kvname, $kvcname, $secretname, $secretvalue, $KVSPApplicationId, $TenantId )
     
+            #pull thumprint from the local certificate store for authentication
             $Thumbprint = (Get-ChildItem cert:\CurrentUser\My\ | Where-Object { $_.Subject -eq $KvCName }).Thumbprint
             Connect-AzAccount -ServicePrincipal -CertificateThumbprint $Thumbprint -ApplicationId $KVSPApplicationId -TenantId $TenantId 
     
@@ -197,32 +198,32 @@ String. The GetKVSecret function returns the secret as plain text.
     
 
     <#
-.SYNOPSIS
-Gets a Microsoft token for a given tenant ID and scope.
+    .SYNOPSIS
+    Gets a Microsoft token for a given tenant ID and scope.
 
-.DESCRIPTION
-This class function sends a POST request to the Microsoft authentication endpoint and returns a token object that can be used to access Microsoft services.
+    .DESCRIPTION
+    This class function sends a POST request to the Microsoft authentication endpoint and returns a token object that can be used to access Microsoft services.
 
-.PARAMETER TenantId
-The GUID of the tenant ID. If not specified, the common endpoint is used.
+    .PARAMETER TenantId
+    The GUID of the tenant ID. If not specified, the common endpoint is used.
 
-.PARAMETER Scope
-The scope of the token request. The default value is 'https://graph.microsoft.com/.default', which grants access to the Microsoft Graph API.
+    .PARAMETER Scope
+    The scope of the token request. The default value is 'https://graph.microsoft.com/.default', which grants access to the Microsoft Graph API.
 
-.INPUTS
-None. You cannot pipe objects to GetMicrosoftToken.
+    .INPUTS
+    None. You cannot pipe objects to GetMicrosoftToken.
 
-.OUTPUTS
-Object. The GetMicrosoftToken function returns an object that contains the token and other properties, such as token_type, expires_in, and ext_expires_in.
+    .OUTPUTS
+    Object. The GetMicrosoftToken function returns an object that contains the token and other properties, such as token_type, expires_in, and ext_expires_in.
 
-.EXAMPLE
-$token = $myClass.GetMicrosoftToken ('12345678-1234-1234-1234-123456789012')
-This example gets a token for the tenant ID '12345678-1234-1234-1234-123456789012' and the default scope.
+    .EXAMPLE
+    $token = $myClass.GetMicrosoftToken ('12345678-1234-1234-1234-123456789012')
+    This example gets a token for the tenant ID '12345678-1234-1234-1234-123456789012' and the default scope.
 
-.EXAMPLE
-$token = $myClass.GetMicrosoftToken ($null, 'https://management.azure.com/.default')
-This example gets a token for the common endpoint and the scope 'https://management.azure.com/.default', which grants access to the Azure Resource Manager API.
-#>
+    .EXAMPLE
+    $token = $myClass.GetMicrosoftToken ($null, 'https://management.azure.com/.default')
+    This example gets a token for the common endpoint and the scope 'https://management.azure.com/.default', which grants access to the Azure Resource Manager API.
+    #>
     [Object] GetMicrosoftToken ([guid]$TenantId, [string]$Scope = 'https://graph.microsoft.com/.default') {
         if ($TenantId) {
             $Uri = "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token"
@@ -260,22 +261,22 @@ This example gets a token for the common endpoint and the scope 'https://managem
 
 
     <#
-.SYNOPSIS
-Gets a partner access token for the current class instance.
+    .SYNOPSIS
+    Gets a partner access token for the current class instance.
 
-.DESCRIPTION
-This class function checks if the current class instance has a valid partner access token. If not, it calls the GetMicrosoftToken function to get a new token for the partner center API and assigns it to the class instance. It then returns the partner access token as a string.
+    .DESCRIPTION
+    This class function checks if the current class instance has a valid partner access token. If not, it calls the GetMicrosoftToken function to get a new token for the partner center API and assigns it to the class instance. It then returns the partner access token as a string.
 
-.INPUTS
-None. You cannot pipe objects to GetPartnerAccessToken.
+    .INPUTS
+    None. You cannot pipe objects to GetPartnerAccessToken.
 
-.OUTPUTS
-String. The GetPartnerAccessToken function returns a string that contains the partner access token.
+    .OUTPUTS
+    String. The GetPartnerAccessToken function returns a string that contains the partner access token.
 
-.EXAMPLE
-$token = $myClass.GetPartnerAccessToken ()
-This example gets a partner access token for the current class instance and assigns it to the $token variable.
-#>
+    .EXAMPLE
+    $token = $myClass.GetPartnerAccessToken ()
+    This example gets a partner access token for the current class instance and assigns it to the $token variable.
+    #>
     [string] GetPartnerAccessToken  () {
         if ($null -ne $this.PartnerAccessToken -and ($this.PartnerAccessToken.length -gt 1)) {
             return $this.PartnerAccessToken
@@ -296,27 +297,27 @@ This example gets a partner access token for the current class instance and assi
 
     
     <#
-.SYNOPSIS
-Revokes the App Registration API permission for a customer tenant using the PartnerCenter module.
+    .SYNOPSIS
+    Revokes the App Registration API permission for a customer tenant using the PartnerCenter module.
 
-.DESCRIPTION
-This function uses the PartnerCenter module to revoke the app access for a customer tenant using the given access token, customer tenant ID, and automation app ID. It invokes the revoke API and returns a message indicating the success or failure of the operation.
+    .DESCRIPTION
+    This function uses the PartnerCenter module to revoke the app access for a customer tenant using the given access token, customer tenant ID, and automation app ID. It invokes the revoke API and returns a message indicating the success or failure of the operation.
 
-.PARAMETER AccessToken
-The access token for the PartnerCenter module.
+    .PARAMETER AccessToken
+    The access token for the PartnerCenter module.
 
-.PARAMETER CustomerTenantID
-The customer tenant ID for the app access.
+    .PARAMETER CustomerTenantID
+    The customer tenant ID for the app access.
 
-.PARAMETER AutomationAppID
-The automation app ID for the app access.
+    .PARAMETER AutomationAppID
+    The automation app ID for the app access.
 
-.INPUTS
-None. You cannot pipe objects to RevokeAppAccess.
+    .INPUTS
+    None. You cannot pipe objects to RevokeAppAccess.
 
-.OUTPUTS
-String. The RevokeAppAccess function returns a message indicating the success or failure of the operation.
-#>
+    .OUTPUTS
+    String. The RevokeAppAccess function returns a message indicating the success or failure of the operation.
+    #>
     [string] RevokeAppAccess ([string]$CustomerTenantID) {
 
         if ($null -eq $this.PartnerAccessToken) {
@@ -343,17 +344,32 @@ String. The RevokeAppAccess function returns a message indicating the success or
     }
 
 
+   
     <#
-    @(
-                    @{
-                        enterpriseApplicationId = "00000003-0000-0000-c000-000000000000"
-                        scope                   = "Directory.Read.All,Directory.AccessAsUser.All"
-                    },
-                    @{
-                        enterpriseApplicationId = "00000002-0000-0ff1-ce00-000000000000"
-                        scope                   = "Exchange.Manage"
-                    }
+    .SYNOPSIS
+    Consents to an application on behalf of a customer.
+
+    .DESCRIPTION
+    This function uses the Partner Center API to consent to an application on behalf of a customer. It takes the customer tenant ID and an array of application grants as parameters. It returns an object that with the REST API response.
+
+    .PARAMETER CustomerTenantId
+    The tenant ID of the customer. This is a GUID that uniquely identifies the customer.
+
+    .PARAMETER Grants
+    An array of application grants that specify the permissions and roles for the application. Each grant is a hashmap with enterpriseApplicationId and a scope property defined.
+
+    .INPUTS
+    None. You cannot pipe objects to ConsentToApp.
+
+    .OUTPUTS
+    System.Object. This function returns an object that contains the secret for the application.
+
+    .EXAMPLE
+    PS> $grants = @( 
+                    @{ enterpriseApplicationId = "00000003-0000-0000-c000-000000000000"; scope = "Directory.Read.All,Directory.AccessAsUser.All"},
+                    @{ enterpriseApplicationId = "00000002-0000-0ff1-ce00-000000000000"; scope = "Exchange.Manage" }
                 )
+    PS> $myobj.ConsentToApp($CustomerTenantID, $grants)
     #>
     [Object] ConsentToApp ([string]$CustomerTenantId, $grants) {
         $headers = @{
@@ -369,12 +385,29 @@ String. The RevokeAppAccess function returns a message indicating the success or
             displayName       = $this.AppDisplayName
         } | ConvertTo-Json
 
-        $response =  Invoke-RestMethod -Uri $uri -Headers $headers -Method POST -Body $body -ContentType 'application/json'
+        $response = Invoke-RestMethod -Uri $uri -Headers $headers -Method POST -Body $body -ContentType 'application/json'
         $this.secret = $response
 
         return $response
     }
 
+    <#
+    .SYNOPSIS
+    Gets all the customer IDs from the Partner Center
+
+    .DESCRIPTION
+    This function uses the Partner Center module to connect to the Partner Center API and retrieve the customer IDs of all the customers associated with the partner. It runs the query in a background job and returns the customer IDs as an array of strings. This function remembers the result of the response and does not make additional calls to partner center after the first.
+
+    .PARAMETER PartnerAccessToken
+    The access token for the Partner Center API. This can be obtained by using the GetPartnerAccessToken function.
+
+    .INPUTS
+    None. You cannot pipe objects to this function.
+
+    .OUTPUTS
+    System.String[]. This function returns an array of strings that contain the customer IDs.
+
+    #>
     [String[]] GetAllCustomerIds() {
         if ($null -ne $this.CustomerIDs) {
             return $this.CustomerIDs 
