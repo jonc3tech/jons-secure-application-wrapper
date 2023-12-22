@@ -1,4 +1,4 @@
-# jons-secure-graph-wrapper
+# jons-secure-application-wrapper
 
 ![Issues](https://img.shields.io/github/issues/jonc3tech/jons-secure-graph-wrapper)
 
