@@ -36,14 +36,14 @@ Clone the repo to your directory of choosing. Now we code:
 
 ## Bring in the class with a using
 ```
-    PS C:\Users\jon> using module 'repopath\jons-secure-graph-wrapper\SGW.psm1'   
+    PS C:\Users\jon> using module 'repopath\jons-secure-graph-wrapper\SAW.psm1'   
 ```
-## Initialize your SGW (Partner Center Graph) object with your identifying information
+## Initialize your SAW (Secure Application Wrapper) object with your identifying information
 ```
-    $SGW = [SGW]::new()
+    $SAW = [SAW]::new()
 
-    #alternatively  SGW ([string]$KvName, [string]$KvCName, [string]$KVSPApplicationId, [string]$TenantId, [string]$AppDisplayName)
-    $SGW = [SGW]::new('MSP-CredsKeyVault','CN=MSPKV','12345678-1234-1234-1234-123456789012','87654321-4321-4321-4321-210987654321',' MSP Automations')
+    #alternatively  SAW ([string]$KvName, [string]$KvCName, [string]$KVSPApplicationId, [string]$TenantId, [string]$AppDisplayName)
+    $SAW = [SAW]::new('MSP-CredsKeyVault','CN=MSPKV','12345678-1234-1234-1234-123456789012','87654321-4321-4321-4321-210987654321',' MSP Automations')
 ```
 
 ## Consent to your application for a sub-tenant
@@ -59,18 +59,18 @@ Clone the repo to your directory of choosing. Now we code:
             }
         )
 
-    $SGW.ConsentToApp($CustomerTenantId, $grants)
+    $SAW.ConsentToApp($CustomerTenantId, $grants)
 ```
 
 ## Revoke consent to your app for a sub-tenant
 ```
-    $SGW.RevokeAppAccess($CustomerTenantId)
+    $SAW.RevokeAppAccess($CustomerTenantId)
 ```
 
 ## Generate a token and make an API call
 ```
     $scope = 'https://graph.microsoft.com/Device.ReadWrite.All'
-    $graphToken = $SGW.GetMicrosoftToken($CustomerTenantId,$scope)
+    $graphToken = $SAW.GetMicrosoftToken($CustomerTenantId,$scope)
 
 
     $headers = @{ "Authorization" = "Bearer $($graphToken.Access_Token)" }
@@ -81,7 +81,7 @@ Clone the repo to your directory of choosing. Now we code:
 
 ## Connect to Exchange Online
 ```
-    $token = $SGW.GetMicrosoftToken($CustomerTenantId, 'https://outlook.office365.com/.default')
+    $token = $SAW.GetMicrosoftToken($CustomerTenantId, 'https://outlook.office365.com/.default')
     Connect-ExchangeOnline -DelegatedOrganization $CustomerTenantId -AccessToken $token.Access_Token -ShowBanner:$false
 ```
 
