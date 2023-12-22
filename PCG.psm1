@@ -117,13 +117,13 @@ String. The GetKVSecret function returns the secret as plain text.
             # Get the certificate thumbprint from the current user's certificate store
             $Thumbprint = (Get-ChildItem cert:\CurrentUser\My\ | Where-Object { $_.Subject -eq $KvCName }).Thumbprint
             # Connect to Azure using the service principal and the certificate
-            Connect-AzAccount -ServicePrincipal -CertificateThumbprint $Thumbprint -ApplicationId $KVSPApplicationId -TenantId $TenantId 
+            Connect-AzAccount -ServicePrincipal -CertificateThumbprint $Thumbprint -ApplicationId $KVSPApplicationId -TenantId $TenantId | Out-Null
 
             # Get the secret from the key vault as plain text
             $secret = (Get-AzKeyVaultSecret -vaultName $KvName -name $secretname -AsPlainText)
 
             # Disconnect from Azure
-            Disconnect-AzAccount
+            Disconnect-AzAccount | Out-Null
 
             # Check if the secret is null
             if ($null -eq $secret) {
@@ -139,7 +139,7 @@ String. The GetKVSecret function returns the secret as plain text.
         $secret = Wait-Job -Job $secretjob | Receive-Job 
 
         # Return the secret from the job's return value
-        return $secret[2]
+        return $secret
     }
 
 
