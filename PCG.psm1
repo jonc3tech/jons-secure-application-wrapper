@@ -372,7 +372,7 @@ String. The RevokeAppAccess function returns a message indicating the success or
             displayName       = $this.AppDisplayName
         } | ConvertTo-Json
 
-        $response =  Invoke-RestMethod -Uri $uri -Headers $headers -Method POST -Body $body -ContentType 'application/json' -
+        $response =  Invoke-RestMethod -Uri $uri -Headers $headers -Method POST -Body $body -ContentType 'application/json'
         $this.secret = $response
 
         return $response
