@@ -76,9 +76,6 @@ class PCG {
             return
         }
 
-        $this.PartnerCenter = Connect-PartnerCenter -AccessToken $this.GetPartnerAccessToken()
-
-        $this.AllCustomers()
     }
 
     <#
@@ -137,10 +134,10 @@ String. The GetKVSecret function returns the secret as plain text.
         } -ArgumentList $this.kvname, $this.kvcname, $secretname, $this.KVSPApplicationId, $this.TenantId 
 
         # Wait for the job to finish and get the output
-        $secret = Wait-Job -Job $secretjob | Receive-Job 
+         $response = Wait-Job -Job $secretjob | Receive-Job 
 
         # Return the secret from the job's return value
-        return $secret
+        return $response
     }
 
 
