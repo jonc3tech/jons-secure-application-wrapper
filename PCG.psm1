@@ -1,19 +1,19 @@
 
 class PCG {
-    [string]$KvName
-    [string]$KvCName
-    [string]$KVSPApplicationId
-    [string]$TenantId
-    [string]$AppDisplayName 
-    hidden [string]$PCRefreshToken
+    [string]$KvName #Azure Key Vault Name
+    [string]$KvCName # CName that identifies certificate used to sign into key vault service principle
+    [string]$KVSPApplicationId # Service Principle application id that has proper permissions to KV
+    [string]$TenantId # Home tenant ID that has GDAP partner relationships to be leveraged
+    [string]$AppDisplayName # Automation Application Display, this is the same as the app registration name that will show up in all partner tenants upon consenting
+    hidden [string]$PCRefreshToken #used to generate access tokens, this should already be in the keyvault
 
     hidden [string]$AutomationAppId
     hidden [string]$AutomationAppSecret
-    hidden [pscredential]$AppCredential
+    hidden [pscredential]$AppCredential #credential made from AutomationAppId and AutomationAppSecret
     hidden [string]$PartnerAccessToken
     hidden $PartnerCenter
     hidden $CustomerIDs
-    hidden $secret
+    hidden $secret #this isn't actually secret and I just use for debugging XD
     
     PCG ([string]$KvName, [string]$KvCName, [string]$KVSPApplicationId, [string]$TenantId, [string]$AppDisplayName) {
         $this.KvName = $KvName
