@@ -341,6 +341,30 @@ class SAW {
     }
 
 
+    [string] GetEnterpriseApps ([string]$CustomerTenantID) {
+
+        if ($null -eq $this.PartnerAccessToken) {
+            $this.GetPartnerAccessToken() | Out-Null
+        }
+
+
+        # Invoke the revoke API with the access token
+        try {
+
+            $token = $this.GetMicrosoftToken($CustomerTenantID, 'https://graph.microsoft.com/.default').Access_Token
+
+            Write-Output "found token: $token"
+            $response = Invoke-RestMethod `
+                -Uri "https://graph.microsoft.com/v1.0/applications" `
+                -Headers @{
+                    Authorization = "Bearer $($token)"
+                }
+            return $response
+        }
+        catch {
+            Throw "Failed to revoke access token for customer $CustomerTenantID with error: $_"
+        }
+    }
    
     <#
     .SYNOPSIS
