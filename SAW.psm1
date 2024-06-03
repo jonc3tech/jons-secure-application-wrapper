@@ -315,7 +315,7 @@ class SAW {
     .OUTPUTS
     String. The RevokeAppAccess function returns a message indicating the success or failure of the operation.
     #>
-    [string] RevokeAppAccess ([string]$CustomerTenantID) {
+    [string] RevokeAppAccess ([string]$CustomerTenantID, [string]$appID = $this.AutomationAppId) {
 
         if ($null -eq $this.PartnerAccessToken) {
             $this.GetPartnerAccessToken() | Out-Null
@@ -323,7 +323,7 @@ class SAW {
 
         # Construct the revoke URL
     
-        $RevokeUrl = "https://api.partnercenter.microsoft.com/v1/customers/$CustomerTenantId/applicationconsents/$($this.AutomationAppId)"
+        $RevokeUrl = "https://api.partnercenter.microsoft.com/v1/customers/$CustomerTenantId/applicationconsents/$($appID)"
         # Invoke the revoke API with the access token
         try {
             Invoke-RestMethod -Method DELETE `
