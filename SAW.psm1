@@ -341,28 +341,43 @@ class SAW {
     }
 
 
-    [string] GetEnterpriseApps ([string]$CustomerTenantID) {
-
+    [object] SearchEnterpriseApps ([string]$CustomerTenantID, [string]$displayName) {
         if ($null -eq $this.PartnerAccessToken) {
             $this.GetPartnerAccessToken() | Out-Null
         }
 
+        $token = $this.GetMicrosoftToken($CustomerTenantID, 'https://graph.microsoft.com/.default').Access_Token
 
+        $headers = @{
+            "Authorization" = "Bearer $token"
+            "ConsistencyLevel" = "eventual"
+        }
+        $response = Invoke-RestMethod -Uri "https://graph.microsoft.com/v1.0/applications?`$filter=startswith(displayName, '$displayName')&`$count=true&`$top=1&`$orderby=displayName" -Headers $headers
+
+        return $response.value
+    }
+
+    [object] DeleteEnterpriseApp ([string]$CustomerTenantID, [string]$AppID) {
+        if ($null -eq $this.PartnerAccessToken) {
+            $this.GetPartnerAccessToken() | Out-Null
+        }
+
+        $deleteUri = "https://graph.microsoft.com/v1.0/applications/$appId"
         # Invoke the revoke API with the access token
         try {
-
             $token = $this.GetMicrosoftToken($CustomerTenantID, 'https://graph.microsoft.com/.default').Access_Token
 
-            Write-Output "found token: $token"
-            $response = Invoke-RestMethod `
-                -Uri "https://graph.microsoft.com/v1.0/applications" `
+            Invoke-RestMethod -Method DELETE `
+                -Uri $deleteUri `
+                -ContentType 'application/json' `
                 -Headers @{
-                    Authorization = "Bearer $($token)"
-                }
-            return $response
+                Authorization = "Bearer $token"
+                'Accept'      = 'application/json'
+            }
+            return "App deleted successfully"
         }
         catch {
-            Throw "Failed to revoke access token for customer $CustomerTenantID with error: $_"
+            Throw "Failed to revoke app for customer $CustomerTenantID with error: $_"
         }
     }
    
